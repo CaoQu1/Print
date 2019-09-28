@@ -35,10 +35,12 @@ namespace RPrint
         /// </summary>
         /// <param name="netWeight"></param>
         /// <returns></returns>
-        public DataTable Generate(double netWeight, out List<ProductModel> models)
+        public DataTable Generate(double netWeight, ProductModel model, out List<ProductModel> models)
         {
             models = new List<ProductModel>();
-            int index = 1;
+            //int index = 1;
+            string month = DateTime.Now.Month.ToString().PadLeft(2, '0');
+            string day = DateTime.Now.Day.ToString().PadLeft(2, '0');
             while (true)
             {
                 var grossWeight = GetRandomNumber(GrossWeightMin, GrossWeightMax, 2);
@@ -47,12 +49,12 @@ namespace RPrint
                 netWeight = Math.Round(netWeight - Math.Round(_netWeight, 2));
                 if (netWeight > 0 && _netWeight > 0)
                 {
-                    ProductModel model = new ProductModel();
+                    model = model.Clone();
                     model.GrossWeight = grossWeight;
                     model.DeadWeight = deadWeight;
                     model.NetWeight = _netWeight;
-                    model.ProductNo = index.ToString().PadLeft(6, '0');
-                    model.Id = index++;
+                    model.ProductNo = "ZJ" + day + GetRandomNumber(6).ToString() + month;
+                    //model.Id = index++;
                     models.Add(model);
                 }
                 else
@@ -74,6 +76,19 @@ namespace RPrint
         {
             Random random = new Random(GetRandomSeed());
             return Math.Round(random.NextDouble() * (maximum - minimum) + minimum, Len);
+        }
+
+        /// <summary>
+        /// 生成指定位数随机数
+        /// </summary>
+        /// <param name="minimum"></param>
+        /// <param name="maximum"></param>
+        /// <param name="Len"></param>
+        /// <returns></returns>
+        public int GetRandomNumber(int lenght)   //Len小数点保留位数
+        {
+            Random random = new Random(GetRandomSeed());
+            return random.Next(100000, 999999);
         }
 
         /// <summary>

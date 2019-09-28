@@ -58,23 +58,31 @@ namespace RPrint
                 DataGridViewCell dataGridViewCell = dataGridViewRow.Cells[e.ColumnIndex];
                 if (dataGridViewCell != null && list != null && list.Any())
                 {
-                    ProductModel model = list.FirstOrDefault(x => x.Id == Convert.ToInt32(dataGridViewRow.Cells[0].Value));
-                    var columnName = dataGridViewCell.OwningColumn.Name;
-                    var cellValue = dataGridViewCell.Value;
-                    Type type = model.GetType();
-                    Dictionary<string, PropertyInfo> columnProperties = type.GetPropertyColumns();
-                    PropertyInfo propertyInfo = columnProperties[columnName];
-                    if (propertyInfo != null && cellValue != DBNull.Value && cellValue != null)
+                    ProductModel model = list.FirstOrDefault(x => x.ProductNo == dataGridViewRow.Cells[4].Value.ToString());
+                    if (model != null)
                     {
-                        propertyInfo.SetValue(model, cellValue);
-                    }
-                    Task.Run(() =>
-                    {
-                        dataGridView1.BeginInvoke(new Action(() =>
+                        var columnName = dataGridViewCell.OwningColumn.Name;
+                        var cellValue = dataGridViewCell.Value;
+                        Type type = model.GetType();
+                        Dictionary<string, PropertyInfo> columnProperties = type.GetPropertyColumns();
+                        PropertyInfo propertyInfo = columnProperties[columnName];
+                        if (propertyInfo != null && cellValue != DBNull.Value && cellValue != null)
                         {
-                            dataGridView1.DataSource = list.ObjectToTable();
-                        }));
-                    });
+                            propertyInfo.SetValue(model, cellValue);
+                        }
+                        Task.Run(() =>
+                        {
+                            dataGridView1.BeginInvoke(new Action(() =>
+                            {
+                                dataGridView1.DataSource = list.ObjectToTable();
+                            }));
+                        });
+                    }
+                    else
+                    {
+                        MessageBox.Show("未找到数据!");
+                        return;
+                    }
                 }
             }
         }
@@ -100,14 +108,17 @@ namespace RPrint
         /// <param name="e"></param>
         private void DataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (dataGridView1.CurrentCell.ReadOnly == true)
+            if (e.RowIndex != -1)
             {
-                RowPrint(dataGridView1.Rows[e.RowIndex]);
-            }
-            else
-            {
-                dataGridView1.CurrentCell = this.dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
-                dataGridView1.BeginEdit(true);
+                if (dataGridView1.CurrentCell.ReadOnly == true)
+                {
+                    RowPrint(dataGridView1.Rows[e.RowIndex]);
+                }
+                else
+                {
+                    dataGridView1.CurrentCell = this.dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    dataGridView1.BeginEdit(true);
+                }
             }
         }
 
@@ -142,6 +153,11 @@ namespace RPrint
         /// <param name="e"></param>
         private void btnPrint_Click(object sender, EventArgs e)
         {
+            if (list == null || !list.Any())
+            {
+                MessageBox.Show("请先生成数据!");
+                return;
+            }
             Print print = new Print(list);
             print.Show();
         }
@@ -153,7 +169,13 @@ namespace RPrint
         /// <param name="e"></param>
         private void btnGenerate_Click(object sender, EventArgs e)
         {
+            ProductModel model = new ProductModel();
             string weight = txtWeight.Text.Trim();
+            model.CustomerName = txtCustomName.Text.Trim();
+            model.MaterialName = txtMatrailName.Text.Trim();
+            model.Remark = txtRemark.Text.Trim();
+            model.Weigher = txtGby.Text.Trim();
+            model.Supplier = txtUnit.Text.Trim();
             double netWight = 0;
             if (!string.IsNullOrEmpty(weight) && double.TryParse(weight, out netWight))
             {
@@ -166,7 +188,7 @@ namespace RPrint
                 Task.Run(() =>
                 {
                     GenerateData generateData = new GenerateData();
-                    var generateTable = generateData.Generate(netWight, out list);
+                    var generateTable = generateData.Generate(netWight, model, out list);
                     this.BeginInvoke(new Action(() =>
                     {
                         dataGridView1.DataSource = generateTable;
@@ -177,6 +199,7 @@ namespace RPrint
             else
             {
                 MessageBox.Show("请输入净重!");
+                return;
             }
         }
 

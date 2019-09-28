@@ -31,22 +31,22 @@ namespace RPrint
         public static double DeadWeightMax = double.Parse(System.Configuration.ConfigurationManager.AppSettings["DeadWeightMax"].ToString());
 
 
-        /// <summary>
-        /// 序号
-        /// </summary>
-        public int id;
-        [Column("序号", true, 1)]
-        public int Id
-        {
-            get
-            {
-                return id;
-            }
-            set
-            {
-                id = value;
-            }
-        }
+        ///// <summary>
+        ///// 序号
+        ///// </summary>
+        //public int id;
+        //[Column("序号", true, 1)]
+        //public int Id
+        //{
+        //    get
+        //    {
+        //        return id;
+        //    }
+        //    set
+        //    {
+        //        id = value;
+        //    }
+        //}
 
 
         /// <summary>
@@ -273,6 +273,28 @@ namespace RPrint
                 weigher = value;
             }
         }
+    }
 
+    /// <summary>
+    /// 模型扩展
+    /// </summary>
+    public static class ProductModelExtesion
+    {
+        /// <summary>
+        /// 克隆
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public static ProductModel Clone(this ProductModel model)
+        {
+            return new ProductModel
+            {
+                CustomerName = model.CustomerName,
+                MaterialName = model.MaterialName,
+                Supplier = model.Supplier,
+                Remark = model.Remark,
+                Weigher = model.Weigher
+            };
+        }
     }
 }
