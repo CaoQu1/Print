@@ -80,11 +80,11 @@ namespace RPrint
             var reportViewer1 = new ReportViewer();
             reportViewer1.Name = "货物过磅单";
             reportViewer1.LocalReport.ReportPath = "Report2.rdlc";
-            reportViewer1.Dock = System.Windows.Forms.DockStyle.None;
+            reportViewer1.Dock = System.Windows.Forms.DockStyle.Fill;
             reportViewer1.Location = new System.Drawing.Point(X, Y);
-            reportViewer1.Size = new System.Drawing.Size(985, 500);
+            //reportViewer1.Size = new System.Drawing.Size(985, 500);
             reportViewer1.TabIndex = 0;
-            reportViewer1.Margin = new Padding(20);
+            //reportViewer1.Margin = new Padding(20);
             return reportViewer1;
         }
     }
